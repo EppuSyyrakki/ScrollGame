@@ -48,19 +48,20 @@ public class MainGame extends ApplicationAdapter {
 		tiledMapRenderer.render();
 
 		batch.begin();
-		updateCorners(player);
-		player.update(batch, delta);
+		player.setCornersFree(updateCorners(player));
+		player.update(batch);
 		batch.end();
 
 	}
 
-	private void updateCorners(Ship ship) {
+	private boolean[] updateCorners(Ship ship) {
 		// corners clockwise from top-right
-		boolean corners[] = ship.getCorners();
+		boolean corners[] = ship.getCornersFree();
 		corners[0] = isFree(ship.getX() + ship.getWidth(), ship.getY() + ship.getHeight());
 		corners[1] = isFree(ship.getX() + ship.getWidth(), ship.getY());
 		corners[2] = isFree(ship.getX(), ship.getY());
 		corners[3] = isFree(ship.getX(), ship.getY() + ship.getHeight());
+		return corners;
 	}
 
 	private boolean isFree(float x, float y) {
