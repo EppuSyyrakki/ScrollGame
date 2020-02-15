@@ -9,22 +9,20 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class Enemy implements Ship {
     private float speedX;
-    private float speedY;
     private float x;
     private float y;
     private float width = 0.5f;
     private float height = 1f;
     private float stateTime = 0.0f;
-    private boolean gameRunning = false;
     private boolean[] cornersFree = {true, true, true, true};
     private boolean isAlive = true;
     private TextureRegion currentFrame;
     private Explosion explosion = new Explosion();
 
     Rectangle rectangle;
-    Texture moveTexture = new Texture("enemy-medium.png");
-    TextureRegion[] moveFrames = new TextureRegion[2];
-    Animation<TextureRegion> move;
+    private Texture moveTexture = new Texture("enemy-medium.png");
+    private TextureRegion[] moveFrames = new TextureRegion[2];
+    private Animation<TextureRegion> move;
 
     public Enemy (float x, float y) {
         this.x = x;
@@ -35,18 +33,27 @@ public class Enemy implements Ship {
         move = new Animation<>(6 / 60f, moveFrames);
         currentFrame = move.getKeyFrame(stateTime);
     }
+
+    public void start() {
+        speedX = 3f;
+    }
+
+    public void destroy() {
+        speedX = 0f;
+        width = 1f;
+        isAlive = false;
+        currentFrame = explosion.animation.getKeyFrame(stateTime, true);
+    }
+
     @Override
     public void update(SpriteBatch batch) {
         float delta = Gdx.graphics.getDeltaTime();
         stateTime += delta;
 
-        if (isAlive) {
-            // x += speedX * delta;
-            // rectangle.x = x;
-        }
+        x -= speedX * delta;
 
         currentFrame = move.getKeyFrame(stateTime, true);
-        batch.draw(currentFrame, x, y);
+        batch.draw(currentFrame, x, y, 0.5f, 1f);
     }
 
     @Override
@@ -72,5 +79,13 @@ public class Enemy implements Ship {
     @Override
     public boolean[] getCornersFree() {
         return cornersFree;
+    }
+
+    public void dispose() {
+        moveTexture.dispose();
+    }
+
+    public boolean getIsAlive() {
+        return isAlive;
     }
 }

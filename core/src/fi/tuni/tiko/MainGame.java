@@ -22,11 +22,11 @@ import java.util.ArrayList;
 public class MainGame extends ApplicationAdapter {
 	private SpriteBatch batch;
 	private TiledMapRenderer tiledMapRenderer;
-	private TiledMap tiledMap;
 	private OrthographicCamera camera;
 	private Player player;
 	private ArrayList<Enemy> enemies = new ArrayList<>();
 	private float unitScale = 28.45f;
+	TiledMap tiledMap;
 
 	@Override
 	public void create () {
@@ -56,17 +56,35 @@ public class MainGame extends ApplicationAdapter {
 		tiledMapRenderer.render();
 
 		batch.begin();
+
 		player.setCornersFree(updateCorners(player));
 		player.update(batch);
 
-		for (int i = 0; i < enemies.size(); i++) {
-			Enemy enemy = enemies.get(i);
-			enemy.update(batch);
-
-		}
+		updateEnemyList();
 
 		batch.end();
 
+	}
+
+	private void updateEnemyList() {
+		for (int i = 0; i < enemies.size(); i++) {
+			Enemy enemy = enemies.get(i);
+
+			if (enemy.getX() - player.getX() < 15) {
+				enemy.start();
+			}
+
+			if (player.checkBulletHits(enemy)) {
+				enemy.destroy();
+			}
+
+			enemy.update(batch);
+
+			if (!enemy.getIsAlive()) {
+				enemies.remove(i);
+				enemies.trimToSize();
+			}
+		}
 	}
 
 	private boolean[] updateCorners(Ship ship) {
@@ -107,19 +125,15 @@ public class MainGame extends ApplicationAdapter {
 		}
 	}
 
-	private Rectangle scaleRect(Rectangle r, float scale) {
-		Rectangle rectangle = new Rectangle();
-		rectangle.x      = r.x * scale;
-		rectangle.y      = r.y * scale;
-		rectangle.width  = r.width * scale;
-		rectangle.height = r.height * scale;
-		return rectangle;
-	}
-	
 	@Override
 	public void dispose () {
 		batch.dispose();
 		player.dispose();
+
+		for (Enemy e : enemies) {
+			e.dispose();
+		}
+
 
 	}
 
@@ -130,5 +144,7 @@ public class MainGame extends ApplicationAdapter {
 		camera.update();
 	}
 
-
+	public float getUnitScale() {
+		return unitScale;
+	}
 }

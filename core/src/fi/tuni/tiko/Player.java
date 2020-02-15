@@ -26,15 +26,15 @@ public class Player implements Ship {
     private ArrayList<Bullet> bullets = new ArrayList<>();
 
     Rectangle rectangle = new Rectangle(x, y, 1f , 0.5f);
-    Texture allFrames = new Texture("ship.png");
-    TextureRegion[][] splitFrames = TextureRegion.split(allFrames, 24,16);
-    TextureRegion[] forwardFrames = new TextureRegion[] {splitFrames[2][0], splitFrames[2][1]};
-    TextureRegion[] upFrames = new TextureRegion[] {splitFrames[0][0], splitFrames[0][1]};
-    TextureRegion[] downFrames = new TextureRegion[] {splitFrames[4][0], splitFrames[4][1]};
+    private Texture allFrames = new Texture("ship.png");
+    private TextureRegion[][] splitFrames = TextureRegion.split(allFrames, 24,16);
+    private TextureRegion[] forwardFrames = new TextureRegion[] {splitFrames[2][0], splitFrames[2][1]};
+    private TextureRegion[] upFrames = new TextureRegion[] {splitFrames[0][0], splitFrames[0][1]};
+    private TextureRegion[] downFrames = new TextureRegion[] {splitFrames[4][0], splitFrames[4][1]};
 
-    Animation<TextureRegion> forward = new Animation<>(6 / 60f, forwardFrames);
-    Animation<TextureRegion> up = new Animation<>(6 / 60f, upFrames);
-    Animation<TextureRegion> down = new Animation<>(6 / 60f, downFrames);
+    private Animation<TextureRegion> forward = new Animation<>(6 / 60f, forwardFrames);
+    private Animation<TextureRegion> up = new Animation<>(6 / 60f, upFrames);
+    private Animation<TextureRegion> down = new Animation<>(6 / 60f, downFrames);
 
     public Player() {
         x = 2f;
@@ -91,13 +91,14 @@ public class Player implements Ship {
         }
 
         batch.draw(currentFrame, x, y, width, height);
-        drawBullets(batch);
+        updateBulletList(batch);
     }
 
     public void destroy() {
         speedX = 0f;
         speedY = 0f;
-        currentFrame = explosion.animation.getKeyFrame(stateTime, false);
+        height = 1f;
+        currentFrame = explosion.animation.getKeyFrame(stateTime, true);
 
         if (explosion.animation.isAnimationFinished(stateTime)) {
 
@@ -105,8 +106,7 @@ public class Player implements Ship {
         }
     }
 
-    private void drawBullets(SpriteBatch batch) {
-
+    private void updateBulletList(SpriteBatch batch) {
         for (int i = 0; i < bullets.size(); i++) {
             Bullet tmp = bullets.get(i);
             tmp.update();
@@ -119,6 +119,18 @@ public class Player implements Ship {
                 bullets.trimToSize();
             }
         }
+    }
+
+    public boolean checkBulletHits(Enemy enemy) {
+        for (int i = 0; i < bullets.size(); i++) {
+            Bullet tmp = bullets.get(i);
+
+            if (tmp.rectangle.overlaps(enemy.rectangle)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void dispose() {
