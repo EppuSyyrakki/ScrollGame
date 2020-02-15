@@ -5,11 +5,18 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapObjects;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Array;
+
+import java.util.ArrayList;
 
 
 public class MainGame extends ApplicationAdapter {
@@ -18,7 +25,8 @@ public class MainGame extends ApplicationAdapter {
 	private TiledMap tiledMap;
 	private OrthographicCamera camera;
 	private Player player;
-	private float unitScale = 1 / 28.45f;
+	private ArrayList<Enemy> enemies = new ArrayList<>();
+	private float unitScale = 28.45f;
 
 	@Override
 	public void create () {
@@ -30,13 +38,13 @@ public class MainGame extends ApplicationAdapter {
 		player = new Player();
 
 		tiledMap = new TmxMapLoader().load("spacemap.tmx");
-		tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, unitScale);
+		tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1 / unitScale);
+
+		createEnemies();
 	}
 
 	@Override
 	public void render () {
-		float delta = Gdx.graphics.getDeltaTime();
-
 		batch.setProjectionMatrix(camera.combined);
 
 		Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -50,6 +58,13 @@ public class MainGame extends ApplicationAdapter {
 		batch.begin();
 		player.setCornersFree(updateCorners(player));
 		player.update(batch);
+
+		for (int i = 0; i < enemies.size(); i++) {
+			Enemy enemy = enemies.get(i);
+			enemy.update(batch);
+
+		}
+
 		batch.end();
 
 	}
@@ -65,8 +80,8 @@ public class MainGame extends ApplicationAdapter {
 	}
 
 	private boolean isFree(float x, float y) {
-		x *= 28.45f;
-		y *= 28.45f;
+		x *= unitScale;
+		y *= unitScale;
 		int indexX = (int) x / 16;
 		int indexY = (int) y / 16;
 		TiledMapTileLayer walls = (TiledMapTileLayer)tiledMap.getLayers().get("wallsfill");
@@ -76,6 +91,29 @@ public class MainGame extends ApplicationAdapter {
 		} else {
 			return false;
 		}
+	}
+
+	private void createEnemies() {
+		MapLayer layer = tiledMap.getLayers().get("enemies");
+		MapObjects objects = layer.getObjects();
+		Array<RectangleMapObject> enemyLocations = objects.getByType(RectangleMapObject.class);
+
+		for (RectangleMapObject location : enemyLocations) {
+			Rectangle rectangle = location.getRectangle();
+			float x = rectangle.x / unitScale;
+			float y = rectangle.y / unitScale;
+			enemies.add(new Enemy(x, y));
+			// Gdx.app.log("player", "player X:" + player.getX() + " Y:" + player.getY());
+		}
+	}
+
+	private Rectangle scaleRect(Rectangle r, float scale) {
+		Rectangle rectangle = new Rectangle();
+		rectangle.x      = r.x * scale;
+		rectangle.y      = r.y * scale;
+		rectangle.width  = r.width * scale;
+		rectangle.height = r.height * scale;
+		return rectangle;
 	}
 	
 	@Override

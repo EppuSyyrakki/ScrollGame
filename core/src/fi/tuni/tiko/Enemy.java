@@ -20,19 +20,18 @@ public class Enemy implements Ship {
     private boolean isAlive = true;
     private TextureRegion currentFrame;
     private Explosion explosion = new Explosion();
-    private Timer timer;
 
     Rectangle rectangle;
-    static Texture moveTexture = new Texture("enemy-medium.png");
-    TextureRegion[] moveFrames;
+    Texture moveTexture = new Texture("enemy-medium.png");
+    TextureRegion[] moveFrames = new TextureRegion[2];
     Animation<TextureRegion> move;
 
     public Enemy (float x, float y) {
         this.x = x;
         this.y = y;
-        rectangle = new Rectangle(x, y, width, height);
-        moveFrames[0] = new TextureRegion(moveTexture, 0f,0f, 0.5f,1f);
-        moveFrames[1] = new TextureRegion(moveTexture, 0.5f, 0f, 1f, 1f );
+        rectangle = new Rectangle(this.x, this.y, width, height);
+        moveFrames[0] = new TextureRegion(moveTexture, 0,0, 16, 32);
+        moveFrames[1] = new TextureRegion(moveTexture, 16, 0, 16, 32);
         move = new Animation<>(6 / 60f, moveFrames);
         currentFrame = move.getKeyFrame(stateTime);
     }
@@ -42,9 +41,12 @@ public class Enemy implements Ship {
         stateTime += delta;
 
         if (isAlive) {
-            x += speedX * delta;
-            rectangle.x = x;
+            // x += speedX * delta;
+            // rectangle.x = x;
         }
+
+        currentFrame = move.getKeyFrame(stateTime, true);
+        batch.draw(currentFrame, x, y);
     }
 
     @Override
