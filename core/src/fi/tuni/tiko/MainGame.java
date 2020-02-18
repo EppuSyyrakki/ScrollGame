@@ -26,7 +26,7 @@ public class MainGame extends ApplicationAdapter {
 	private Player player;
 	private ArrayList<Enemy> enemies = new ArrayList<>();
 	private float unitScale = 28.45f;
-	TiledMap tiledMap;
+	private TiledMap tiledMap;
 
 	@Override
 	public void create () {
@@ -91,8 +91,6 @@ public class MainGame extends ApplicationAdapter {
 		rectangle.height = (1 / unitScale) * r.height;
 		return rectangle;
 	}
-
-
 
 	private void updateEnemyList() {
 		for (int i = 0; i < enemies.size(); i++) {
@@ -180,6 +178,10 @@ public class MainGame extends ApplicationAdapter {
 			e.dispose();
 		}
 
+		for (Bullet b : player.bullets) {
+			b.dispose();
+		}
+
 
 	}
 
@@ -188,9 +190,5 @@ public class MainGame extends ApplicationAdapter {
 		camera.position.x = player.getX() + 6;
 
 		camera.update();
-	}
-
-	public float getUnitScale() {
-		return unitScale;
 	}
 }

@@ -123,6 +123,7 @@ public class Player implements Ship {
 
     public void dispose() {
         allFrames.dispose();
+        explosion.dispose();
     }
 
     public float getX() {

@@ -88,6 +88,7 @@ public class Enemy implements Ship {
 
     public void dispose() {
         moveTexture.dispose();
+        explosion.dispose();
     }
 
     public boolean getIsAlive() {
