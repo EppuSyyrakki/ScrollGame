@@ -52,6 +52,8 @@ public class MainGame extends ApplicationAdapter {
 
 		moveCamera();
 
+		checkCollisions();
+
 		tiledMapRenderer.setView(camera);
 		tiledMapRenderer.render();
 
@@ -66,25 +68,70 @@ public class MainGame extends ApplicationAdapter {
 
 	}
 
+	private void checkCollisions() {
+		MapLayer collect = (MapLayer)tiledMap.getLayers().get("collect");
+		MapObjects mapObjects = collect.getObjects();
+		Array<RectangleMapObject> rectangleObjects = mapObjects.getByType(RectangleMapObject.class);
+
+		for (RectangleMapObject o : rectangleObjects) {
+			Rectangle tmp = scaleRect(o.getRectangle());
+
+			if (tmp.overlaps(player.rectangle)) {
+				player.addScore(5);
+				System.out.print("Player gets 5 points! Score " + player.getScore());
+			}
+		}
+	}
+
+	private Rectangle scaleRect(Rectangle r) {
+		Rectangle rectangle = new Rectangle();
+		rectangle.x = (1 / unitScale) * r.x;
+		rectangle.y = (1 / unitScale) * r.y;
+		rectangle.width = (1 / unitScale) * r.width;
+		rectangle.height = (1 / unitScale) * r.height;
+		return rectangle;
+	}
+
+
+
 	private void updateEnemyList() {
 		for (int i = 0; i < enemies.size(); i++) {
 			Enemy enemy = enemies.get(i);
+			enemy.update(batch);
 
 			if (enemy.getX() - player.getX() < 15) {
 				enemy.start();
 			}
 
-			if (player.checkBulletHits(enemy)) {
+			if (checkBulletHits(enemy)) {
 				enemy.destroy();
 			}
 
-			enemy.update(batch);
-
-			if (!enemy.getIsAlive()) {
+			if (enemy.getX() - player.getX() < - 4) {
 				enemies.remove(i);
 				enemies.trimToSize();
 			}
+
+			if (enemy.rectangle.overlaps(player.rectangle)) {
+				player.destroy();
+			}
 		}
+	}
+
+	public boolean checkBulletHits(Enemy enemy) {
+		for (int i = 0; i < player.bullets.size(); i++) {
+			Bullet tmp = player.bullets.get(i);
+
+			if (tmp.rectangle.overlaps(enemy.rectangle)) {
+				player.addScore(1);
+				System.out.println("Enemy destroyed for 1 point! Score: " + player.getScore());
+				tmp.stop();
+				player.bullets.remove(i);
+				player.bullets.trimToSize();
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private boolean[] updateCorners(Ship ship) {
@@ -121,7 +168,6 @@ public class MainGame extends ApplicationAdapter {
 			float x = rectangle.x / unitScale;
 			float y = rectangle.y / unitScale;
 			enemies.add(new Enemy(x, y));
-			// Gdx.app.log("player", "player X:" + player.getX() + " Y:" + player.getY());
 		}
 	}
 

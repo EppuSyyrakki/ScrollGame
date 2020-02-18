@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 
+import java.util.ArrayList;
+
 public class Enemy implements Ship {
     private float speedX;
     private float x;
@@ -18,11 +20,12 @@ public class Enemy implements Ship {
     private boolean isAlive = true;
     private TextureRegion currentFrame;
     private Explosion explosion = new Explosion();
+    private ArrayList<Enemy> list = new ArrayList<>();
 
     Rectangle rectangle;
     private Texture moveTexture = new Texture("enemy-medium.png");
     private TextureRegion[] moveFrames = new TextureRegion[2];
-    private Animation<TextureRegion> move;
+    Animation<TextureRegion> move;
 
     public Enemy (float x, float y) {
         this.x = x;
@@ -39,10 +42,12 @@ public class Enemy implements Ship {
     }
 
     public void destroy() {
+        move = explosion.animation;
         speedX = 0f;
         width = 1f;
+        rectangle.width = 0;
+        rectangle.height = 0;
         isAlive = false;
-        currentFrame = explosion.animation.getKeyFrame(stateTime, true);
     }
 
     @Override
@@ -53,7 +58,7 @@ public class Enemy implements Ship {
         x -= speedX * delta;
 
         currentFrame = move.getKeyFrame(stateTime, true);
-        batch.draw(currentFrame, x, y, 0.5f, 1f);
+        batch.draw(currentFrame, x, y, width, height);
     }
 
     @Override

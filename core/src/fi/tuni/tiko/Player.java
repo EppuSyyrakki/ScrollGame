@@ -18,12 +18,13 @@ public class Player implements Ship {
     private float width;
     private float height;
     private float stateTime;
+    private int score;
     private boolean gameRunning = false;
     private boolean[] cornersFree = {true, true, true, true};
     private boolean isAlive = true;
     private TextureRegion currentFrame;
     private Explosion explosion = new Explosion();
-    private ArrayList<Bullet> bullets = new ArrayList<>();
+    ArrayList<Bullet> bullets = new ArrayList<>();
 
     Rectangle rectangle = new Rectangle(x, y, 1f , 0.5f);
     private Texture allFrames = new Texture("ship.png");
@@ -113,24 +114,11 @@ public class Player implements Ship {
 
             if (tmp.getX() < this.x + 14f) {
                 batch.draw(tmp.bullet, tmp.getX(), tmp.getY(), 1f, 0.5f);
-                bullets.set(i, tmp);
             } else {
                 bullets.remove(i);
                 bullets.trimToSize();
             }
         }
-    }
-
-    public boolean checkBulletHits(Enemy enemy) {
-        for (int i = 0; i < bullets.size(); i++) {
-            Bullet tmp = bullets.get(i);
-
-            if (tmp.rectangle.overlaps(enemy.rectangle)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public void dispose() {
@@ -164,5 +152,13 @@ public class Player implements Ship {
     @Override
     public float getHeight() {
         return height;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void addScore(int amount) {
+        score += amount;
     }
 }

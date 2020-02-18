@@ -49,6 +49,14 @@ public class Bullet {
         return y;
     }
 
+    public void stop() {
+        speed = 0;
+        x = -10;
+        y = -10;
+        rectangle.height = 0;
+        rectangle.width = 0;
+    }
+
     public void dispose() {
         bullets.dispose();
     }
